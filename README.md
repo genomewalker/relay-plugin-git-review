@@ -1,47 +1,47 @@
-# Relay git review
+# Relay Git review
 
-Inspect project changes, diffs and worktrees and hand selected context to an existing agent.
+Inspect tracked file status, staged changes and unstaged changes within the approved directory.
 
-## Status
+## Status and compatibility
 
-Development scaffold. This repository currently contains the implementation plan,
-not a functional plugin. There is no installable release or remote helper.
+Experimental native-tool package. Requires the Relay build that implements
+the `tool` contribution and the matching `relayd plugin` helper. Older Relay
+builds reject this package safely. This is a data-only package: the implementation
+lives in [Relay](https://github.com/genomewalker/relay-terminal), not executable
+code downloaded from this repository. No install hooks or background polling.
 
-[Relay](https://github.com/genomewalker/relay-terminal) currently has an experimental
-declarative plugin installer. The scoped broker, permissions and runtime required
-for this integration must be implemented and verified before release. This plugin
-does not currently perform the operations described above.
+The native implementation is under development and has not yet passed installed-app
+acceptance. Do not mistake a manifest for a production-ready extension.
 
-## Planned implementation
+## Install and use
 
-- [ ] Define bounded read-only Git status and diff operations.
-- [ ] Preserve source host/project/worktree identity in every action.
-- [ ] Require explicit selection and destination for agent handoff.
-- [ ] Test renamed, untracked and deleted files, large diffs and concurrent edits; no implicit staging or commits.
+When a tagged release is available, open Relay Settings → Plugins, enter
+`genomewalker/relay-plugin-git-review` and its exact tag, review the digest and
+permissions, install disabled, then Enable. Select a terminal pane and open
+the puzzle-piece button in the workspace toolbar. Select this tool, verify the
+host/directory, and choose **Allow once & refresh**. Each refresh is explicit.
 
-## Installation
+Updates require another reviewed version and start disabled. Disable, Roll back
+and Uninstall are available in Settings. Safe mode suppresses all plugin tools.
 
-Not available yet. Do not install a repository checkout as a plugin or run scripts
-from it. Once the required Relay API exists and acceptance checks pass, tagged
-GitHub releases will provide the supported package and compatibility information.
-No placeholder release is published merely to make the installer show this plugin.
+## Limits
 
-## Safety and release requirements
+Read-only. No staging, commits, untracked file contents, or agent handoff. Git output is bounded to 1 MiB per command and external diff/textconv are disabled.
 
-- Terminal input, rendering, SSH and recovery remain core-owned and independent.
-- Access is scoped to the selected project and host; no ambient credentials.
-- Activate only when needed. Bound requests, output, memory and background work.
-- Test permission denial/revocation, cancellation, disconnects and incompatible workers.
-- Publish installation, update, rollback and removal instructions with the first working release.
-- Verify the installed UI manually as well as running automated tests.
+Only the captured pane/host/directory is used; switching tabs does not retarget
+an in-flight request. Remote hosts need a matching helper installed through Relay's
+existing approved setup flow. Agent processes are never restarted by this plugin.
 
-## Contributing
+## Package verification
 
-Open an issue to discuss the protocol and scope before implementing remote helpers.
-Keep changes focused and include tests. Do not include credentials, private hostnames,
-terminal transcripts or user project data in issues or fixtures.
+```sh
+python3 -m json.tool relay-plugin.json
+```
+
+Runtime, path-containment, payload-integrity and permission tests live alongside
+the implementation in Relay. Publish `relay-plugin.json` as a release asset only
+after those tests and the corresponding installed-app acceptance checks pass.
 
 ## License
 
 No license has been selected yet. Public visibility does not grant a reuse license.
-
