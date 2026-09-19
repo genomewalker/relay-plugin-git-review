@@ -1,47 +1,61 @@
 # Relay Git review
 
-Inspect tracked file status, staged changes and unstaged changes within the approved directory.
+Inspect tracked changes without modifying the repository or Git index.
 
-## Status and compatibility
+![Git review in Relay with synthetic data](docs/images/preview.jpg)
 
-Experimental native-tool package. Requires the Relay build that implements
-the `tool` contribution and the matching `relayd plugin` helper. Older Relay
-builds reject this package safely. This is a data-only package: the implementation
-lives in [Relay](https://github.com/genomewalker/relay-terminal), not executable
-code downloaded from this repository. No install hooks or background polling.
+*Actual native Relay component captured September 19, 2026 in an isolated test window. Synthetic data only. Development preview—not a promise that these features are in the released app.*
 
-The native implementation is under development and has not yet passed installed-app
-acceptance. Do not mistake a manifest for a production-ready extension.
+## Status
 
-## Install and use
+This repository has an experimental API-2 manifest but **no tagged installable release yet**. Do not use `main` as a release tag.
 
-When a tagged release is available, open Relay Settings → Plugins, enter
-`genomewalker/relay-plugin-git-review` and its exact tag, review the digest and
-permissions, install disabled, then Enable. Select a terminal pane and open
-the puzzle-piece button in the workspace toolbar. Select this tool, verify the
-host/directory, and choose **Allow once & refresh**. Each refresh is explicit.
+Features and screenshots here describe the current Relay development implementation. A compatible app and matching helper are required; installed-app and release acceptance remain incomplete.
 
-Updates require another reviewed version and start disabled. Disable, Roll back
-and Uninstall are available in Settings. Safe mode suppresses all plugin tools.
+This is a **data-only package**. Its manifest selects operations implemented in [Relay](https://github.com/genomewalker/relay-terminal). It does not download executable plugin code, run install hooks or add background polling.
 
-## Limits
+## Features
 
-Read-only. No staging, commits, untracked file contents, or agent handoff. Git output is bounded to 1 MiB per command and external diff/textconv are disabled.
+- Changed-file listing before fetching patches.
+- Local filename filter and per-file staged/unstaged diffs.
+- Worktree and Git-directory attribution.
+- Deleted-file handling and literal pathspec-like filenames.
 
-Only the captured pane/host/directory is used; switching tabs does not retarget
-an in-flight request. Remote hosts need a matching helper installed through Relay's
-existing approved setup flow. Agent processes are never restarted by this plugin.
+## Install
 
-## Package verification
+Wait for a tagged release before installing this package.
 
-```sh
-python3 -m json.tool relay-plugin.json
-```
+1. Use a compatible Relay app and matching `relayd` on the target host.
+2. Open **Settings → Plugins**, enter `genomewalker/relay-plugin-git-review` and the exact released tag.
+3. Review the repository, digest and permissions. Install, then explicitly Enable.
+4. Select the intended terminal pane and click the puzzle-piece toolbar button.
 
-Runtime, path-containment, payload-integrity and permission tests live alongside
-the implementation in Relay. Publish `relay-plugin.json` as a release asset only
-after those tests and the corresponding installed-app acceptance checks pass.
+Updates require another review and start disabled. Disable, Roll back and Uninstall are available in Settings. Safe mode suppresses plugin tools. Existing release assets must not be overwritten.
 
-## License
+## Use
 
-No license has been selected yet. Public visibility does not grant a reuse license.
+Refresh the list, filter if needed, then click a file to load its diff. These operations do not write the index.
+
+The panel captures its originating pane and connection; changing tabs does not retarget a request. File tools need a known working directory. Reopen the panel from the intended directory when necessary. Each read is explicit; active terminal workers and agents are not restarted.
+
+## Permissions and safety
+
+`projectRead`: scoped Git inspection. External diff programs, textconv and filesystem-monitor hooks are disabled for these operations.
+
+Relay checks the enabled package and digest before running and before showing results. An incompatible helper produces an error, not a misleading empty result.
+
+## Limits and remaining work
+
+Up to 500 files; displayed text is limited to 128 KiB. Per-command output is bounded to 1 MiB. Renames are shown as deletion/addition to preserve directory boundaries. No untracked contents, staging, commits, editor/agent handoff or submodule traversal.
+
+## Verification
+
+Listing, filtering and a selected staged diff were checked manually. Backend tests cover subdirectory isolation, hostile Git environment, deleted files and unusual literal names.
+
+The latest combined development run reported 216 Swift tests (one optional network test skipped); the Go race suite passed. These checks do not substitute for installed-app, remote-error, accessibility or release acceptance of the exact versions you deploy.
+
+## Development and issues
+
+Validate the manifest with `python3 -m json.tool relay-plugin.json`. Native implementation and tests live in [Relay](https://github.com/genomewalker/relay-terminal), not this repository. Report runtime problems there with app/helper versions, reproduction steps and redacted diagnostics. Manifest and documentation issues belong here.
+
+No license has been selected for this package yet. Public visibility alone does not grant a reuse license.
